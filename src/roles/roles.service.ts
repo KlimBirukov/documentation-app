@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {InjectModel} from "@nestjs/sequelize";
 
 import {Role} from "./roles.model";
@@ -12,10 +12,18 @@ export class RolesService {
     }
 
     async createRole(dto: CreateRoleDto) {
-        return await this.roleRepository.create(dto);
+        try {
+            return await this.roleRepository.create(dto);
+        } catch (error) {
+            throw new HttpException("Role already existed", HttpStatus.CONFLICT);
+        }
     }
 
     async getRoleByValue(value: string) {
-        return await this.roleRepository.findOne({where: {value}})
+        return await this.roleRepository.findByPk(value);
+    }
+
+    async getAllRoles(){
+        return await this.roleRepository.findAll()
     }
 }

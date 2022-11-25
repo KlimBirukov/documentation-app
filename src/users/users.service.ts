@@ -5,6 +5,9 @@ import {User} from "./users.model";
 import {CreateUserDto} from "./dto/createUser.dto";
 import {AddRoleDto} from "./dto/addRole.dto";
 import {RolesService} from "../roles/roles.service";
+import {Role} from "../roles/roles.model";
+import {UsersRoles} from "../roles/users-roles";
+import {Roles} from "../auth/rolesAuth.decorator";
 
 
 @Injectable()
@@ -14,19 +17,40 @@ export class UsersService {
     }
 
     async createUser(dto: CreateUserDto) {
-        const existedUser = await this.getUserByEmail(dto.email);
-        if(existedUser){
+        try {
+            const existedUser = await this.getUserByEmail(dto.email);
+            if (existedUser) {
                 throw new HttpException("Email already in use", HttpStatus.CONFLICT);
+            }
+            const role = await this.roleService.getRoleByValue("USER");
+            const user = await this.userRepository.create(dto);
+            await user.$add("roles", [role.value])
+            user.roles = [role];
+
+            return user;
+        } catch (error) {
+            return
         }
-        const role = await this.roleService.getRoleByValue("ADMIN");
-        const user = await this.userRepository.create(dto);
-        await user.$set("roles", [role.id])
-        user.roles = [role];
-        return user;
     }
 
     async getUserByEmail(email: string) {
-        return await this.userRepository.findOne({where: {email}, include: {all: true}})
+        const data = await this.userRepository.findOne({
+                where: {email},
+                include: [{
+                    model: Role,
+                    attributes: {
+                        exclude: ["description", "createdAt", "updatedAt", "UsersRoles"],
+                        include: ["value"],
+                    },
+                }],
+            }
+        )
+        if(data) {
+            const roles = []
+            data.roles.forEach(item => roles.push(item.value))
+            data.roles = [...roles];
+        }
+        return data;
     }
 
     async getAllUsers() {
@@ -37,7 +61,7 @@ export class UsersService {
         const user = await this.getUserByEmail(dto.email);
         const role = await this.roleService.getRoleByValue(dto.value);
         if (role && user) {
-            await user.$add("role", role.id);
+            await user.$add("roles", role.value);
             return dto;
         }
         throw new HttpException("User or role not found", HttpStatus.NOT_FOUND);

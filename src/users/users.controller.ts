@@ -25,7 +25,7 @@ export class UsersController {
         return this.userService.getAllUsers()
     }
 
-    @Post()
+    @Post("/addRole")
     addRole(@Body() dto: AddRoleDto) {
         return this.userService.addRoleToUser(dto);
     }
