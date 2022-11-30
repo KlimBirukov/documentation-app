@@ -3,6 +3,7 @@ import {InjectModel} from "@nestjs/sequelize";
 
 import {Docs} from "./docs.model";
 import {CreateDocDto} from "./dto/createDoc.dto";
+import {Op} from "sequelize";
 
 
 @Injectable()
@@ -28,38 +29,100 @@ export class DocsService {
     }
 
     async getDocById({id}: { id: string }) {
-        return this.documentRepository.findByPk(id, {
+        const data = await this.documentRepository.findByPk(id, {
             attributes: ["creatorId", "content", "createdAt", "updatedAt"]
         });
+        return data ? data : {message: "Document not found"};
     }
 
     async getSkeletonsRootDocs() {
-        return await this.documentRepository.findAll({
+        const data = await this.documentRepository.findAll({
             where: {isRoot: true},
             attributes: ["id", "title", "icon", "isRoot", "childrenIdx"]
         });
+        return data.length !== 0 ? data : {message: "No root documents"};
     }
 
     async getChildrenSkeletonsDocs({idx}: { idx: string[] }) {
         try {
-            const query = idx.map(el => `id = '${el}'`).join(" OR ")
-
-            const whereQuery = `SELECT "id",
-                                       "title",
-                                       "icon",
-                                       "isRoot",
-                                       "childrenIdx",
-                                FROM document
-                                WHERE ${query};`
-
-            return await this.documentRepository.sequelize.query(whereQuery).then(res => res[0]);
+            const data = await this.__customQuery({
+                idx,
+                whatSelect: `"id", "title", "icon", "isRoot", "childrenIdx"`
+            })
+            return data.length !== 0 ? data : {message: "No document(s)"};
         } catch (error) {
-            throw new Error;
+            throw new HttpException({message: "Something went wrong"}, error);
+        }
+    }
+
+    async destroyDocById({parentId, id, flag}: { parentId: string, id: string, flag: boolean }) {
+        try {
+            const rId = id;
+            if (flag) {
+                const doc = await this.documentRepository.findByPk(parentId);
+                const newIdx = doc.childrenIdx.filter(index => index !== rId);
+                await doc.update({"childrenIdx": [...newIdx]});
+            }
+
+            await this.__recursiveDestruction({id, flag});
+
+            return {message: "The document has been deleted irrevocably"};
+        } catch (error) {
+            throw new HttpException({message: "Something went wrong"}, error);
+        }
+    }
+
+    async getTrash() {
+        try {
+            return await this.documentRepository.findAll({
+                where: {deletedAt: {[Op.not]: null}},
+                paranoid: false
+            })
+        } catch (error) {
+            throw new HttpException({message: "Something went wrong"}, error);
+        }
+    }
+
+    async restore({id}: { id: string }) {
+        try {
+            await this.documentRepository.restore({where: {id: id}});
+            return {message: "Document has been restored"};
+        } catch (error) {
+            throw new HttpException({message: "Something went wrong"}, error);
         }
     }
 
 
+    private async __recursiveDestruction({id, flag}: { id: string, flag: boolean }) {
+        try {
+            const data = await this.__customQuery({idx: Array(id), whatSelect: `"childrenIdx"`});
+            await this.documentRepository.destroy({where: {id: id}, force: flag});
+
+            if (data.length === 0) {
+                return;
+            }
+            // @ts-ignore: error message
+            const {childrenIdx} = data[0];
+            await childrenIdx.forEach(childId => this.__recursiveDestruction({id: childId, flag}));
+        } catch (error) {
+            throw new HttpException({message: "Something went wrong"}, error);
+        }
+    }
+
+    private async __customQuery({idx, whatSelect}: { idx: string[], whatSelect: string }): Promise<Object[]> {
+        try {
+            const whereQuery = idx.map(el => `id = '${el}'`).join(" OR ");
+            const query = `SELECT ${whatSelect}
+                           FROM "document"
+                           WHERE ${whereQuery};`;
+
+            return await this.documentRepository.sequelize.query(query).then(data => data[0]);
+        } catch (error) {
+            throw new HttpException({message: "Something went wrong"}, error);
+        }
+    }
+
     async __getAllDocs() {
-        return await this.documentRepository.findAll();
+        return await this.documentRepository.findAll({paranoid: false});
     }
 }

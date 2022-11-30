@@ -11,7 +11,7 @@ interface DocsCreationAttr {
     content: string;
 }
 
-@Table({tableName: "document"})
+@Table({tableName: "document", paranoid: true})
 export class Docs extends Model<Docs, DocsCreationAttr> {
 
     @Column({type: DataType.STRING, unique: true, primaryKey: true})

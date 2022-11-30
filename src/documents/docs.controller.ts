@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Post} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Post} from "@nestjs/common";
 
 import {DocsService} from "./docs.service";
 
@@ -32,5 +32,20 @@ export class DocsController {
     @Get("/all")
     getAll(){
         return this.docsService.__getAllDocs();
+    }
+
+    @Delete()
+    destroy(@Body() body){
+        return this.docsService.destroyDocById(body);
+    }
+
+    @Get("/trash")
+    getTrash(){
+        return this.docsService.getTrash();
+    }
+
+    @Post("/trash")
+    restoreTrashById(@Body() body){
+        return this.docsService.restore(body);
     }
 }
