@@ -3,6 +3,6 @@ export class CreateDocDto {
     readonly title: string;
     readonly icon: string;
     readonly isRoot: boolean;
-    readonly content: string;
+    readonly content?: string;
     readonly creatorId: string;
 }

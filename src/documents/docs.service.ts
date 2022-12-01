@@ -125,4 +125,18 @@ export class DocsService {
     async __getAllDocs() {
         return await this.documentRepository.findAll({paranoid: false});
     }
+
+    async clearTrash(interval){
+        setInterval(()=> {
+            this.getTrash()
+                .then(data => data.forEach(item => {
+                    const {id, deletedAt} = item;
+                    if(Date.now() - deletedAt > interval){
+                        //const doc = this.documentRepository.findOne({where: {childrenIdx: {[Op.contained]: id}}})
+                        //this.documentRepository.destroy({where: {id: id}, force: true})
+                    }
+                }));
+        }, interval)
+    }
 }
+

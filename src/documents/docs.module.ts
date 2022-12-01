@@ -15,4 +15,8 @@ import {Docs} from "./docs.model";
     ]
 })
 export class DocsModule {
+    constructor(private docsService: DocsService) {
+    }
+//604800000
+    cleaner = this.docsService.clearTrash(3000000);
 }
