@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Post} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Patch, Post} from "@nestjs/common";
 
 import {DocsService} from "./docs.service";
 
@@ -12,6 +12,11 @@ export class DocsController {
     @Post()
     create(@Body() {parentId, document}) {
         return this.docsService.createDocument(document, parentId);
+    }
+
+    @Patch()
+    update(@Body() dto){
+        return this.docsService.updateDocById(dto);
     }
 
     @Get()

@@ -1,9 +1,10 @@
 import {HttpException, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/sequelize";
+import {Op} from "sequelize";
 
 import {Docs} from "./docs.model";
 import {CreateDocDto} from "./dto/createDoc.dto";
-import {Op} from "sequelize";
+import {UpdateDocDto} from "./dto/updateDoc.dto";
 
 
 @Injectable()
@@ -23,6 +24,15 @@ export class DocsService {
             parentDoc.childrenIdx = [...parentDoc.childrenIdx, document.id];
             await parentDoc.save();
             return {message: "Document created"}
+        } catch (error) {
+            throw new HttpException({message: "Something went wrong"}, error);
+        }
+    }
+
+    async updateDocById(dto: UpdateDocDto) {
+        try {
+            const doc = await this.documentRepository.findByPk(dto.id);
+            await doc.update({icon: dto.icon, title: dto.title, content: dto.content});
         } catch (error) {
             throw new HttpException({message: "Something went wrong"}, error);
         }
@@ -126,12 +136,12 @@ export class DocsService {
         return await this.documentRepository.findAll({paranoid: false});
     }
 
-    async clearTrash(interval){
-        setInterval(()=> {
+    async clearTrash(interval) {
+        setInterval(() => {
             this.getTrash()
                 .then(data => data.forEach(item => {
                     const {id, deletedAt} = item;
-                    if(Date.now() - deletedAt > interval){
+                    if (Date.now() - deletedAt > interval) {
                         //const doc = this.documentRepository.findOne({where: {childrenIdx: {[Op.contained]: id}}})
                         //this.documentRepository.destroy({where: {id: id}, force: true})
                     }
