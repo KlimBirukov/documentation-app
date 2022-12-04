@@ -21,7 +21,7 @@ export class DocsService {
             }
             const parentDoc = await this.documentRepository.findByPk(parentId);
             const document = await this.documentRepository.create(dto);
-            parentDoc.childrenIdx = [...parentDoc.childrenIdx, document.id];
+            parentDoc.child_id = [...parentDoc.child_id, document.id];
             await parentDoc.save();
             return {message: "Document created"}
         } catch (error) {
@@ -33,6 +33,7 @@ export class DocsService {
         try {
             const doc = await this.documentRepository.findByPk(dto.id);
             await doc.update({icon: dto.icon, title: dto.title, content: dto.content});
+            return {message: "Document was updated"};
         } catch (error) {
             throw new HttpException({message: "Something went wrong"}, error);
         }
@@ -48,7 +49,7 @@ export class DocsService {
     async getSkeletonsRootDocs() {
         const data = await this.documentRepository.findAll({
             where: {isRoot: true},
-            attributes: ["id", "title", "icon", "isRoot", "childrenIdx"]
+            attributes: ["id", "title", "icon", "isRoot", "child_id"]
         });
         return data.length !== 0 ? data : {message: "No root documents"};
     }
@@ -57,7 +58,7 @@ export class DocsService {
         try {
             const data = await this.__customQuery({
                 idx,
-                whatSelect: `"id", "title", "icon", "isRoot", "childrenIdx"`
+                whatSelect: `"id", "title", "icon", "isRoot", "child_id"`
             })
             return data.length !== 0 ? data : {message: "No document(s)"};
         } catch (error) {
@@ -70,8 +71,8 @@ export class DocsService {
             const rId = id;
             if (flag) {
                 const doc = await this.documentRepository.findByPk(parentId);
-                const newIdx = doc.childrenIdx.filter(index => index !== rId);
-                await doc.update({"childrenIdx": [...newIdx]});
+                const newIdx = doc.child_id.filter(index => index !== rId);
+                await doc.update({"child_id": [...newIdx]});
             }
 
             await this.__recursiveDestruction({id, flag});
@@ -105,7 +106,7 @@ export class DocsService {
 
     private async __recursiveDestruction({id, flag}: { id: string, flag: boolean }) {
         try {
-            const data = await this.__customQuery({idx: Array(id), whatSelect: `"childrenIdx"`});
+            const data = await this.__customQuery({idx: Array(id), whatSelect: `"child_id"`});
             await this.documentRepository.destroy({where: {id: id}, force: flag});
 
             if (data.length === 0) {

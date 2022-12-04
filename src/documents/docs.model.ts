@@ -25,7 +25,7 @@ export class Docs extends Model<Docs, DocsCreationAttr> {
     isRoot: boolean;
 
     @Column({type: DataType.ARRAY(DataType.STRING), allowNull: false, defaultValue: []})
-    childrenIdx: string[];
+    child_id: string[];
 
     @Column({type: DataType.STRING, allowNull: false})
     creatorId: string;
