@@ -27,15 +27,15 @@ export class Docs extends Model<Docs, DocsCreationAttr> {
     @Column({type: DataType.STRING, allowNull: false})
     icon: string;
 
-    @Column({type: DataType.BOOLEAN, allowNull: false})
-    isRoot: boolean;
+    @Column({type: DataType.JSON, defaultValue: desContent})
+    content: string;
 
-    @Column({type: DataType.ARRAY(DataType.STRING), allowNull: false, defaultValue: []})
+    @Column({type: DataType.ARRAY(DataType.STRING), defaultValue: []})
     child_id: string[];
+
+    @Column({type: DataType.STRING})
+    parent_id: string;
 
     @Column({type: DataType.STRING, allowNull: false})
     creatorId: string;
-
-    @Column({type: DataType.JSON, defaultValue: desContent})
-    content: string;
 }

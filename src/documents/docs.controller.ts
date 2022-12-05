@@ -1,6 +1,8 @@
 import {Body, Controller, Delete, Get, Patch, Post} from "@nestjs/common";
 
 import {DocsService} from "./docs.service";
+import {DeleteDocDto, GetDocDto, GetChildrenDocDto, CreateDocDto, UpdateDocDto} from "./dto/dtos";
+import {CommonResponse, SuccessfulResponseWithData} from "./responses/responses";
 
 
 @Controller("docs")
@@ -10,47 +12,48 @@ export class DocsController {
     }
 
     @Post()
-    create(@Body() {parentId, document}) {
-        return this.docsService.createDocument(document, parentId);
+    create(@Body() dto: CreateDocDto): Promise<CommonResponse> {
+        return this.docsService.createDocument(dto);
     }
 
     @Patch()
-    update(@Body() dto){
+    update(@Body() dto: UpdateDocDto): Promise<CommonResponse> {
         return this.docsService.updateDocById(dto);
     }
 
     @Get()
-    getRootSkeletonsDocs(){
+    getRootSkeletonsDocs(): Promise<CommonResponse | SuccessfulResponseWithData> {
         return this.docsService.getSkeletonsRootDocs();
     }
 
-    @Post("/get-child-docs-by-idx")
-    getChildrenSkeletonsDocs(@Body() idx){
-        return this.docsService.getChildrenSkeletonsDocs(idx);
-    }
-    
-    @Post("/get-by-id")
-    getDocumentById(@Body() id){
-        return this.docsService.getDocById(id);
-    }
-
-    @Get("/all")
-    getAll(){
-        return this.docsService.__getAllDocs();
-    }
-
     @Delete()
-    destroy(@Body() body){
-        return this.docsService.destroyDocById(body);
+    destroy(@Body() dto: DeleteDocDto): Promise<CommonResponse> {
+        return this.docsService.destroyDocById(dto);
+    }
+
+    @Post("/children")
+    getChildrenSkeletonsDocs(@Body() dto: GetChildrenDocDto): Promise<CommonResponse | SuccessfulResponseWithData> {
+        return this.docsService.getChildrenSkeletonsDocs(dto);
+    }
+
+    @Post("/doc")
+    getDocumentById(@Body() dto: GetDocDto): Promise<CommonResponse | SuccessfulResponseWithData> {
+        return this.docsService.getDocById(dto);
     }
 
     @Get("/trash")
-    getTrash(){
+    getTrash(): Promise<CommonResponse | SuccessfulResponseWithData> {
         return this.docsService.getTrash();
     }
 
     @Post("/trash")
-    restoreTrashById(@Body() body){
-        return this.docsService.restore(body);
+    restoreTrashById(@Body() dto: GetDocDto): Promise<CommonResponse | SuccessfulResponseWithData> {
+        return this.docsService.restore(dto);
+    }
+
+    // dev query, will be deleted in production
+    @Get("/all")
+    getAll() {
+        return this.docsService.__getAllDocs();
     }
 }
