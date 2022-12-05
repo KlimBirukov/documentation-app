@@ -3,6 +3,7 @@ export class CreateDocDto {
     readonly title: string;
     readonly icon: string;
     readonly isRoot: boolean;
-    readonly content?: string;
+    readonly content?: JSON;
+    readonly child_id?: string[];
     readonly creatorId: string;
 }

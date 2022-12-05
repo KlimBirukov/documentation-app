@@ -1,6 +1,12 @@
 import {Column, DataType, Model, Table} from "sequelize-typescript";
 
 
+const desContent = {
+    time: Date.now(),
+    blocks: [{id: "8_Os0SK9d2", type: "paragraph", data: {text: "Write here your awesome story"},},],
+    version: "2.24.3",
+}
+
 interface DocsCreationAttr {
     id: string;
     title: string;
@@ -30,6 +36,6 @@ export class Docs extends Model<Docs, DocsCreationAttr> {
     @Column({type: DataType.STRING, allowNull: false})
     creatorId: string;
 
-    @Column({type: DataType.JSON})
+    @Column({type: DataType.JSON, defaultValue: desContent})
     content: string;
 }

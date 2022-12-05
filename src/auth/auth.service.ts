@@ -16,7 +16,7 @@ export class AuthService {
     async login(userDto: CreateUserDto) {
         const user = await this.validateUser(userDto);
         const token = await this.generateToken(user);
-        return {token, nickname: user.nickname, roles: user.roles, email: user.email};
+        return {token, userId: user.id, nickname: user.nickname, roles: user.roles, email: user.email};
     }
 
     async registration(userDto: CreateUserDto) {
@@ -25,14 +25,15 @@ export class AuthService {
             throw new HttpException("A user with this email already exists", HttpStatus.BAD_REQUEST)
         }
         const hashedPassword = await bcrypt.hash(userDto.password, 10);
-        const user = await this.userService.createUser({...userDto, password: hashedPassword});
+        await this.userService.createUser({...userDto, password: hashedPassword});
+        const user = await this.userService.getUserByEmail(userDto.email);
         const token = await this.generateToken(user);
-        return {token, nickname: user.nickname, roles: user.roles, email: user.email};
+        return {token, userId: user.id, nickname: user.nickname, roles: user.roles, email: user.email};
     }
 
     private async validateUser(userDto: CreateUserDto) {
         const user = await this.userService.getUserByEmail(userDto.email);
-        if(!user) {
+        if (!user) {
             throw new HttpException("User not found", HttpStatus.NOT_FOUND);
         }
         const passwordEquals = await bcrypt.compare(userDto.password, user.password);
@@ -44,5 +45,4 @@ export class AuthService {
         const payload = {email: user.email, id: user.id, roles: user.roles}
         return this.jwtService.sign(payload);
     }
-
 }

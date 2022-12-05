@@ -6,7 +6,7 @@ import {UsersModule} from "./users/users.module";
 import {AuthModule} from "./auth/auth.module";
 import {RolesModule} from "./roles/roles.module";
 import {DocsModule} from "./documents/docs.module";
-import {ImageModule} from './image/image.module';
+import {ImageModule} from "./image/image.module";
 
 
 @Module({

@@ -7,7 +7,6 @@ import {AddRoleDto} from "./dto/addRole.dto";
 import {RolesService} from "../roles/roles.service";
 import {Role} from "../roles/roles.model";
 import {UsersRoles} from "../roles/users-roles";
-import {Roles} from "../auth/rolesAuth.decorator";
 
 
 @Injectable()

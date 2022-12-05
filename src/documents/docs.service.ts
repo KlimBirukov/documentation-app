@@ -15,9 +15,9 @@ export class DocsService {
 
     async createDocument(dto: CreateDocDto, parentId: string) {
         try {
-            if (!parentId) {
+            if (parentId === "root") {
                 await this.documentRepository.create(dto);
-                return {message: "Document created"}
+                return {message: "Root document created"}
             }
             const parentDoc = await this.documentRepository.findByPk(parentId);
             const document = await this.documentRepository.create(dto);
@@ -25,7 +25,7 @@ export class DocsService {
             await parentDoc.save();
             return {message: "Document created"}
         } catch (error) {
-            throw new HttpException({message: "Something went wrong"}, error);
+            return {success: false, message: error.message};
         }
     }
 
@@ -33,43 +33,45 @@ export class DocsService {
         try {
             const doc = await this.documentRepository.findByPk(dto.id);
             await doc.update({icon: dto.icon, title: dto.title, content: dto.content});
-            return {message: "Document was updated"};
+            return {success: true, message: "Document was updated"};
         } catch (error) {
-            throw new HttpException({message: "Something went wrong"}, error);
+            return {success: false, message: error.message};
         }
     }
 
     async getDocById({id}: { id: string }) {
-        const data = await this.documentRepository.findByPk(id, {
-            attributes: ["creatorId", "content", "createdAt", "updatedAt"]
-        });
-        return data ? data : {message: "Document not found"};
+        const data = await this.documentRepository.findByPk(id);
+        return data ? data : {success: false, message: "Document not found"};
     }
 
     async getSkeletonsRootDocs() {
         const data = await this.documentRepository.findAll({
             where: {isRoot: true},
-            attributes: ["id", "title", "icon", "isRoot", "child_id"]
+            attributes: ["id", "title", "icon", "isRoot", "child_id"],
+            order: [
+                ['id', 'ASC'],
+            ]
+
         });
-        return data.length !== 0 ? data : {message: "No root documents"};
+        return data.length !== 0 ? data : {success: false, message: "No root documents"};
     }
 
     async getChildrenSkeletonsDocs({idx}: { idx: string[] }) {
         try {
             const data = await this.__customQuery({
                 idx,
-                whatSelect: `"id", "title", "icon", "isRoot", "child_id"`
+                whatSelect: `"id", "title", "icon", "isRoot", "child_id"`,
             })
             return data.length !== 0 ? data : {message: "No document(s)"};
         } catch (error) {
-            throw new HttpException({message: "Something went wrong"}, error);
+            return {success: false, message: error.message};
         }
     }
 
     async destroyDocById({parentId, id, flag}: { parentId: string, id: string, flag: boolean }) {
         try {
             const rId = id;
-            if (flag) {
+            if (flag ?? parentId !== "root") {
                 const doc = await this.documentRepository.findByPk(parentId);
                 const newIdx = doc.child_id.filter(index => index !== rId);
                 await doc.update({"child_id": [...newIdx]});
@@ -79,7 +81,7 @@ export class DocsService {
 
             return {message: "The document has been deleted irrevocably"};
         } catch (error) {
-            throw new HttpException({message: "Something went wrong"}, error);
+            return {success: false, message: error.message};
         }
     }
 
@@ -87,19 +89,23 @@ export class DocsService {
         try {
             return await this.documentRepository.findAll({
                 where: {deletedAt: {[Op.not]: null}},
-                paranoid: false
+                paranoid: false,
+                order: [
+                    ['id', 'ASC'],
+                ]
             })
         } catch (error) {
-            throw new HttpException({message: "Something went wrong"}, error);
+            return {success: false, message: error.message};
         }
     }
 
     async restore({id}: { id: string }) {
         try {
             await this.documentRepository.restore({where: {id: id}});
-            return {message: "Document has been restored"};
+            const data = this.documentRepository.findByPk(id);
+            return {data, message: "Document has been restored"};
         } catch (error) {
-            throw new HttpException({message: "Something went wrong"}, error);
+            return {success: false, message: error.message};
         }
     }
 
@@ -116,7 +122,7 @@ export class DocsService {
             const {childrenIdx} = data[0];
             await childrenIdx.forEach(childId => this.__recursiveDestruction({id: childId, flag}));
         } catch (error) {
-            throw new HttpException({message: "Something went wrong"}, error);
+            return {success: false, message: error.message};
         }
     }
 
@@ -125,7 +131,8 @@ export class DocsService {
             const whereQuery = idx.map(el => `id = '${el}'`).join(" OR ");
             const query = `SELECT ${whatSelect}
                            FROM "document"
-                           WHERE ${whereQuery};`;
+                           WHERE ${whereQuery}
+                           ORDER BY "id" DESC;`;
 
             return await this.documentRepository.sequelize.query(query).then(data => data[0]);
         } catch (error) {
@@ -135,19 +142,6 @@ export class DocsService {
 
     async __getAllDocs() {
         return await this.documentRepository.findAll({paranoid: false});
-    }
-
-    async clearTrash(interval) {
-        setInterval(() => {
-            this.getTrash()
-                .then(data => data.forEach(item => {
-                    const {id, deletedAt} = item;
-                    if (Date.now() - deletedAt > interval) {
-                        //const doc = this.documentRepository.findOne({where: {childrenIdx: {[Op.contained]: id}}})
-                        //this.documentRepository.destroy({where: {id: id}, force: true})
-                    }
-                }));
-        }, interval)
     }
 }
 

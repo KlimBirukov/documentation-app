@@ -1,6 +1,5 @@
-import {HttpException, Injectable} from '@nestjs/common';
+import {HttpException, Injectable} from "@nestjs/common";
 import {HttpService} from "@nestjs/axios"
-import * as fs from "fs";
 
 
 @Injectable()
@@ -17,8 +16,7 @@ export class ImageService {
                 responseType: "arraybuffer",
             });
             return {
-                success: 1,
-                file: {
+                success: 1, file: {
                     url: `data:image/png;base64,${data.toString('base64')}`
                 }
             }
@@ -30,8 +28,7 @@ export class ImageService {
 
     fileToBase64(file: Express.Multer.File) {
         return {
-            success: 1,
-            file: {
+            success: 1, file: {
                 url: `data:image/png;base64,${file.buffer.toString('base64')}`
             }
         }
