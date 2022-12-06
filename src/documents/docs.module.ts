@@ -6,6 +6,7 @@ import {DocsController} from "./docs.controller";
 import {Docs} from "./docs.model";
 import {UsersModule} from "../users/users.module";
 import {User} from "../users/users.model";
+import {AuthModule} from "../auth/auth.module";
 
 
 @Module({
@@ -14,6 +15,7 @@ import {User} from "../users/users.model";
     imports: [
         SequelizeModule.forFeature([Docs, User]),
         forwardRef(() => UsersModule),
+        AuthModule
     ],
     exports: [DocsService]
 })

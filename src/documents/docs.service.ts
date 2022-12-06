@@ -1,9 +1,9 @@
 import {HttpException, Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/sequelize";
-import {Op} from "sequelize";
+import {col, fn, Op, where} from "sequelize";
 
 import {Docs} from "./docs.model";
-import {CreateDocDto, DeleteDocDto, GetDocDto, GetChildrenDocDto, UpdateDocDto} from "./dto/dtos";
+import {CreateDocDto, DeleteDocDto, GetDocDto, GetChildrenDocDto, UpdateDocDto, SearchDto} from "./dto/dtos";
 import {CommonResponse, SuccessfulResponseWithData} from "./responses/responses";
 
 
@@ -15,7 +15,6 @@ export class DocsService {
 
     async createDocument(dto: CreateDocDto): Promise<CommonResponse> {
         try {
-            console.log(dto);
             if (!dto.parent_id) {
                 await this.documentRepository.create(dto);
                 return {success: true, message: "Root document created"}
@@ -53,7 +52,7 @@ export class DocsService {
 
     async getChildrenSkeletonsDocs(dto: GetChildrenDocDto): Promise<CommonResponse | SuccessfulResponseWithData> {
         try {
-            const data = await this.__customQuery(
+            const data = await this._customQuery(
                 dto.idx,
                 `"id", "title", "icon", "parent_id", "child_id"`,
             )
@@ -72,7 +71,7 @@ export class DocsService {
                 await parentDoc.update({"child_id": [...newIdx]});
             }
 
-            await this.__recursiveDestruction(dto.id, dto.flag);
+            await this._recursiveDestruction(dto.id, dto.flag);
 
             return {success: true, message: `The document has been deleted${dto.flag ? " irrevocably" : ""}`};
         } catch (error) {
@@ -80,7 +79,7 @@ export class DocsService {
         }
     }
 
-    private async __recursiveDestruction(id: string, flag: boolean): Promise<CommonResponse> {
+    private async _recursiveDestruction(id: string, flag: boolean): Promise<CommonResponse> {
         try {
             const idxArray = await this.documentRepository.findByPk(id).then(data => data.child_id)
             await this.documentRepository.destroy({where: {id: id}, force: flag});
@@ -89,7 +88,7 @@ export class DocsService {
                 return;
             }
 
-            await idxArray.forEach(childId => this.__recursiveDestruction(childId, flag));
+            await idxArray.forEach(childId => this._recursiveDestruction(childId, flag));
         } catch (error) {
             return {success: false, message: error.message};
         }
@@ -97,7 +96,28 @@ export class DocsService {
 
     async getDocById(dto): Promise<CommonResponse | SuccessfulResponseWithData> {
         try {
-            const data = await this.documentRepository.findByPk(dto.id);
+            const doc = await this.documentRepository.findByPk(dto.id);
+            const array = []
+
+            if (doc.parent_id) {
+                let currentId = doc.parent_id
+                while (true) {
+                    const parent = await this.documentRepository.findByPk(currentId)
+                    array.push({
+                        id: parent.id,
+                        title: parent.title,
+                        icon: parent.icon,
+                        child_id: parent.child_id,
+                        parent_id: parent.parent_id,
+                    })
+                    if (!parent.parent_id) {
+                        break;
+                    }
+                    currentId = parent.parent_id;
+                }
+            }
+
+            const data = {data: doc, array};
             return data ? {success: true, data} : {success: false, message: "Document not found"};
         } catch (error) {
             return {success: false, message: error.message};
@@ -127,7 +147,7 @@ export class DocsService {
                 return {
                     success: false,
                     message: `You cannot restore a document if its parent document is not restored. parent_id="${doc.parent_id}" `
-                   };
+                };
             }
             await this.documentRepository.restore({where: {id: dto.id}});
             const data = await this.documentRepository.findByPk(dto.id);
@@ -137,7 +157,7 @@ export class DocsService {
         }
     }
 
-    private async __customQuery(idx: string[], whatSelect: string) {
+    private async _customQuery(idx: string[], whatSelect: string) {
         try {
             const whereQuery = idx.map(el => `id = '${el}'`).join(" OR ");
             const query = `SELECT ${whatSelect}
@@ -149,6 +169,24 @@ export class DocsService {
         } catch (error) {
             throw new HttpException({message: "Something went wrong"}, error);
         }
+    }
+
+    async search(dto: SearchDto): Promise<CommonResponse | SuccessfulResponseWithData> {
+        try {
+            const data = await this.documentRepository.findAll({
+                where: where(
+                    fn("lower", col("title")),
+                    {[Op.iLike]: `%${dto.query}%`}
+                ),
+                order: [
+                    ["updatedAt", "ASC"]
+                ]
+            });
+            return data ? {success: true, data} : {success: false, message: "Document not found"};
+        } catch (error) {
+            return {success: false, message: error.message};
+        }
+
     }
 
     async __getAllDocs() {

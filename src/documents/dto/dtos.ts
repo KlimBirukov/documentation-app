@@ -27,3 +27,7 @@ export class UpdateDocDto {
 export class GetDocDto {
     readonly id: string;
 }
+
+export class SearchDto {
+    readonly query: string;
+}
