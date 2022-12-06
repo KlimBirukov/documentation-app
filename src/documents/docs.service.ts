@@ -64,7 +64,7 @@ export class DocsService {
 
     async destroyDocById(dto: DeleteDocDto): Promise<CommonResponse> {
         try {
-            const doc = await this.documentRepository.findByPk(dto.id);
+            const doc = await this.documentRepository.findByPk(dto.id, {paranoid: false});
             if (dto.flag && doc.parent_id) {
                 const parentDoc = await this.documentRepository.findByPk(doc.parent_id);
                 const newIdx = parentDoc.child_id.filter(index => index !== doc.id);
@@ -81,7 +81,7 @@ export class DocsService {
 
     private async _recursiveDestruction(id: string, flag: boolean): Promise<CommonResponse> {
         try {
-            const idxArray = await this.documentRepository.findByPk(id).then(data => data.child_id)
+            const idxArray = await this.documentRepository.findByPk(id, {paranoid: false}).then(data => data.child_id)
             await this.documentRepository.destroy({where: {id: id}, force: flag});
 
             if (idxArray.length === 0) {
@@ -130,7 +130,7 @@ export class DocsService {
                 where: {deletedAt: {[Op.not]: null}},
                 paranoid: false,
                 order: [
-                    ['id', 'ASC'],
+                    ['id', 'DESC'],
                 ]
             })
             return data ? {success: true, data} : {success: false, message: "Document not found"};
@@ -173,20 +173,43 @@ export class DocsService {
 
     async search(dto: SearchDto): Promise<CommonResponse | SuccessfulResponseWithData> {
         try {
-            const data = await this.documentRepository.findAll({
+            const docs = await this.documentRepository.findAll({
                 where: where(
                     fn("lower", col("title")),
                     {[Op.iLike]: `%${dto.query}%`}
                 ),
                 order: [
-                    ["updatedAt", "ASC"]
+                    ["updatedAt", "DESC"]
                 ]
             });
+            const data = [];
+            docs.forEach(doc => data.push({id: doc.id, title: doc.title, icon: doc.icon, updateAt: doc.updatedAt}));
             return data ? {success: true, data} : {success: false, message: "Document not found"};
         } catch (error) {
             return {success: false, message: error.message};
         }
+    }
 
+    async duplicate(dto: GetDocDto): Promise<CommonResponse | SuccessfulResponseWithData> {
+        try {
+            const doc = await this.documentRepository.create(dto);
+            if (!doc) {
+                return {success: true, message: "Document not found"};
+            }
+            const duplicate: CreateDocDto = {
+                id: doc.id,
+                title: doc.title,
+                icon: doc.icon,
+                child_id: [],
+                parent_id: doc.parent_id,
+                content: JSON.parse(doc.content),
+                creatorId: doc.creatorId
+            }
+            const data = await this.documentRepository.create(duplicate)
+            return data ? {success: true, data} : {success: false, message: "Something went wrong"};
+        } catch (error) {
+            return {success: false, message: error.message};
+        }
     }
 
     async __getAllDocs() {

@@ -65,6 +65,12 @@ export class DocsController {
         return this.docsService.search(dto);
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Post("duplicate")
+    duplicate(@Body() dto: GetDocDto): Promise<CommonResponse | SuccessfulResponseWithData> {
+        return this.docsService.duplicate(dto);
+    }
+
     // dev query, will be deleted in production
     @Get("all")
     getAll() {
