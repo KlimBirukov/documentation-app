@@ -7,6 +7,8 @@ import {AuthModule} from "./auth/auth.module";
 import {RolesModule} from "./roles/roles.module";
 import {DocsModule} from "./documents/docs.module";
 import {ImageModule} from "./image/image.module";
+import {join} from "path";
+import {ServeStaticModule} from "@nestjs/serve-static";
 
 
 @Module({
@@ -25,6 +27,10 @@ import {ImageModule} from "./image/image.module";
             database: process.env.POSTGRES_DB,
             autoLoadModels: true,
             models: []
+        }),
+        ServeStaticModule.forRoot({
+            rootPath: join(__dirname, '..', 'client'),
+            exclude: ['/api*'],
         }),
         UsersModule,
         AuthModule,
