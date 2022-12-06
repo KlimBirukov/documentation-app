@@ -1,7 +1,9 @@
-import {HttpException, Injectable} from "@nestjs/common";
+import {HttpException, Injectable, UseGuards} from "@nestjs/common";
 import {HttpService} from "@nestjs/axios"
+import {JwtAuthGuard} from "../auth/jwtAuth.guard";
 
 
+@UseGuards(JwtAuthGuard)
 @Injectable()
 export class ImageService {
 
