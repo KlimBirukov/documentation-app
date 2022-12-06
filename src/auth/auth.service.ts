@@ -16,7 +16,7 @@ export class AuthService {
     async login(userDto: CreateUserDto) {
         const user = await this.validateUser(userDto);
         const token = await this.generateToken(user);
-        return {token, userId: user.id, nickname: user.nickname, roles: user.roles, email: user.email};
+        return {token, id: user.id, nickname: user.nickname, roles: user.roles, email: user.email};
     }
 
     async registration(userDto: CreateUserDto) {
@@ -28,7 +28,7 @@ export class AuthService {
         await this.userService.createUser({...userDto, password: hashedPassword});
         const user = await this.userService.getUserByEmail(userDto.email);
         const token = await this.generateToken(user);
-        return {token, userId: user.id, nickname: user.nickname, roles: user.roles, email: user.email};
+        return {token, id: user.id, nickname: user.nickname, roles: user.roles, email: user.email};
     }
 
     private async validateUser(userDto: CreateUserDto) {

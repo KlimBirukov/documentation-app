@@ -15,6 +15,7 @@ export class DocsService {
 
     async createDocument(dto: CreateDocDto): Promise<CommonResponse> {
         try {
+            console.log(dto);
             if (!dto.parent_id) {
                 await this.documentRepository.create(dto);
                 return {success: true, message: "Root document created"}
@@ -54,7 +55,7 @@ export class DocsService {
         try {
             const data = await this.__customQuery(
                 dto.idx,
-                `"id", "title", "icon", "isRoot", "child_id"`,
+                `"id", "title", "icon", "parent_id", "child_id"`,
             )
             return data.length !== 0 ? {success: true, data} : {success: false, message: "No document(s)"};
         } catch (error) {

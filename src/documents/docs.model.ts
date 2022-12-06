@@ -1,4 +1,5 @@
-import {Column, DataType, Model, Table} from "sequelize-typescript";
+import {BelongsTo, Column, DataType, ForeignKey, Model, Table} from "sequelize-typescript";
+import {User} from "../users/users.model";
 
 
 const desContent = {
@@ -36,6 +37,10 @@ export class Docs extends Model<Docs, DocsCreationAttr> {
     @Column({type: DataType.STRING})
     parent_id: string;
 
-    @Column({type: DataType.STRING, allowNull: false})
+    @ForeignKey(() => User)
+    @Column({type: DataType.INTEGER})
     creatorId: string;
+
+    @BelongsTo(() => User)
+    creator: User;
 }
