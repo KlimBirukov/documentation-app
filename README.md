@@ -21,4 +21,7 @@ The server part on the [NestJS](https://github.com/nestjs/nest) framework for [N
 ```bash
 # watch mode 
 $ npm run start:dev 
+
+# watch mode 
+$ npm run build 
 ```
