@@ -3,7 +3,6 @@ import {HttpService} from "@nestjs/axios"
 import {JwtAuthGuard} from "../auth/jwtAuth.guard";
 
 
-@UseGuards(JwtAuthGuard)
 @Injectable()
 export class ImageService {
 

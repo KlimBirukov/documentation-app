@@ -11,7 +11,6 @@ import {AuthModule} from "../auth/auth.module";
     providers: [ImageService],
     imports: [
         HttpModule,
-        AuthModule
     ],
 })
 export class ImageModule {

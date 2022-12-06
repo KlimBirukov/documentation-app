@@ -1,9 +1,12 @@
-import {Body, Controller, Get, Param, Post} from '@nestjs/common';
+import {Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
 
 import {RolesService} from "./roles.service";
 import {CreateRoleDto} from "./dto/createRole.dto";
+import {Roles} from "../auth/rolesAuth.decorator";
+import {RolesGuard} from "../auth/rolesGuard";
 
-
+@Roles("ADMIN")
+@UseGuards(RolesGuard)
 @Controller("roles")
 export class RolesController {
 
