@@ -22,8 +22,4 @@ export class RolesService {
     async getRoleByValue(value: string) {
         return await this.roleRepository.findByPk(value);
     }
-
-    async getAllRoles(){
-        return await this.roleRepository.findAll()
-    }
 }

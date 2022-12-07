@@ -59,10 +59,6 @@ export class UsersService {
         return data;
     }
 
-    async getAllUsers() {
-        return await this.userRepository.findAll({include: {all: true}});
-    }
-
     async addRoleToUser(dto: AddRoleDto) {
         const user = await this.getUserByEmail(dto.email);
         const role = await this.roleService.getRoleByValue(dto.value);
