@@ -7,7 +7,7 @@
 
 <div style="display: flex; justify-content: space-around">
     <a href="https://nodejs.org/ru/" target="blank"><img src="https://nodejsdev.ru/nodejs.svg" width="150" alt="Nest Logo" /></a>
-    <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="150" alt="Nest Logo" /></a>
+    <a href="https://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="150" alt="Nest Logo" /></a>
 </div>
 
 ## Description
@@ -19,9 +19,15 @@ The server part on the [NestJS](https://github.com/nestjs/nest) framework for [N
 ## Running the app
 
 ```bash
+# install necessary dependency
+$ npm install 
+```
+```bash
 # watch mode 
 $ npm run start:dev 
-
-# watch mode 
+```
+```bash
+# prod mode 
 $ npm run build 
 ```
+
