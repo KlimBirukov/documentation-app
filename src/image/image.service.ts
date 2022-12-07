@@ -1,6 +1,5 @@
-import {HttpException, Injectable, UseGuards} from "@nestjs/common";
+import {HttpException, Injectable} from "@nestjs/common";
 import {HttpService} from "@nestjs/axios"
-import {JwtAuthGuard} from "../auth/jwtAuth.guard";
 
 
 @Injectable()

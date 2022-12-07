@@ -19,9 +19,16 @@ export class UsersService {
         try {
             const existedUser = await this.getUserByEmail(dto.email);
             if (existedUser) {
-                throw new HttpException("Email already in use", HttpStatus.CONFLICT);
+                return {success: false, message: "Email already in use"};
             }
-            const role = await this.roleService.getRoleByValue("USER");
+
+            const users = await this.userRepository.findAll();
+            let role
+            if (users.length !== 0) {
+                role = await this.roleService.getRoleByValue("USER");
+            } else {
+                role = await this.roleService.getRoleByValue("ADMIN");
+            }
             const user = await this.userRepository.create(dto);
             await user.$add("roles", [role.value])
             user.roles = [role];
@@ -44,7 +51,7 @@ export class UsersService {
                 }],
             }
         )
-        if(data) {
+        if (data) {
             const roles = []
             data.roles.forEach(item => roles.push(item.value))
             data.roles = [...roles];

@@ -9,6 +9,7 @@ import {DocsModule} from "./documents/docs.module";
 import {ImageModule} from "./image/image.module";
 import {join} from "path";
 import {ServeStaticModule} from "@nestjs/serve-static";
+import {SeederModule} from "nestjs-sequelize-seeder";
 
 
 @Module({
@@ -26,7 +27,9 @@ import {ServeStaticModule} from "@nestjs/serve-static";
             password: process.env.POSTGRES_PASSWORD,
             database: process.env.POSTGRES_DB,
             autoLoadModels: true,
-            models: []
+        }),
+        SeederModule.forRoot({
+            runOnlyIfTableIsEmpty: true,
         }),
         ServeStaticModule.forRoot({
             rootPath: join(__dirname, '..', 'client'),

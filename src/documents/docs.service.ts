@@ -211,9 +211,5 @@ export class DocsService {
             return {success: false, message: error.message};
         }
     }
-
-    async __getAllDocs() {
-        return await this.documentRepository.findAll({paranoid: false});
-    }
 }
 

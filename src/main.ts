@@ -9,6 +9,7 @@ async function start() {
     const app = await NestFactory.create(AppModule);
     app.enableCors();
     app.use(json({limit: "50mb"}));
+    app.setGlobalPrefix("api");
     await app.listen(PORT, () => () => console.log(`Server started on the port: ${PORT}`));
 }
 

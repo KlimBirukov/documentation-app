@@ -31,6 +31,7 @@
     "@nestjs/serve-static": "^3.0.0",
     "bcryptjs": "^2.4.3",
     "cross-env": "^7.0.3",
+    "nestjs-sequelize-seeder": "^1.1.4",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
     "reflect-metadata": "^0.1.13",

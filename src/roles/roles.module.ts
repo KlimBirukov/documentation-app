@@ -7,6 +7,8 @@ import {Role} from "./roles.model";
 import {User} from "../users/users.model";
 import {UsersRoles} from "./users-roles";
 import {AuthModule} from "../auth/auth.module";
+import {SeederModule} from "nestjs-sequelize-seeder";
+import {SeedRole} from "./seeders/SeedRole";
 
 
 @Module({
@@ -14,7 +16,8 @@ import {AuthModule} from "../auth/auth.module";
     providers: [RolesService],
     imports: [
         SequelizeModule.forFeature([Role, User, UsersRoles]),
-        AuthModule
+        AuthModule,
+        SeederModule.forFeature([SeedRole])
     ],
     exports: [RolesService],
 })

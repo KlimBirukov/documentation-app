@@ -5,8 +5,8 @@ import {CreateRoleDto} from "./dto/createRole.dto";
 import {Roles} from "../auth/rolesAuth.decorator";
 import {RolesGuard} from "../auth/rolesGuard";
 
-@Roles("ADMIN")
-@UseGuards(RolesGuard)
+//@Roles("ADMIN")
+//@UseGuards(RolesGuard)
 @Controller("roles")
 export class RolesController {
 
