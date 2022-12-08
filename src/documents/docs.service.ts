@@ -94,7 +94,7 @@ export class DocsService {
         }
     }
 
-    async getDocById(dto): Promise<CommonResponse | SuccessfulResponseWithData> {
+    async getDocById(dto: GetDocDto): Promise<CommonResponse | SuccessfulResponseWithData> {
         try {
             const doc = await this.documentRepository.findByPk(dto.id);
             const array = []
@@ -163,7 +163,7 @@ export class DocsService {
             const query = `SELECT ${whatSelect}
                            FROM "document"
                            WHERE ${whereQuery}
-                           ORDER BY "id" DESC;`;
+                           ORDER BY "createdAt" ASC;`;
 
             return await this.documentRepository.sequelize.query(query).then(data => data[0]);
         } catch (error) {

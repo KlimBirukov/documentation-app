@@ -2,6 +2,7 @@ import {Module} from "@nestjs/common";
 import {SequelizeModule} from "@nestjs/sequelize";
 import {ConfigModule} from "@nestjs/config";
 import {ServeStaticModule} from "@nestjs/serve-static";
+import {SeederModule} from "nestjs-sequelize-seeder";
 import {join} from "path";
 
 import {UsersModule} from "./users/users.module";
@@ -9,7 +10,6 @@ import {AuthModule} from "./auth/auth.module";
 import {RolesModule} from "./roles/roles.module";
 import {DocsModule} from "./documents/docs.module";
 import {ImageModule} from "./image/image.module";
-import {SeederModule} from "nestjs-sequelize-seeder";
 
 
 @Module({
@@ -32,7 +32,7 @@ import {SeederModule} from "nestjs-sequelize-seeder";
             runOnlyIfTableIsEmpty: true,
         }),
         ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '..', 'client'),
+            rootPath: join(__dirname, '..', '..' ,'client'),
             exclude: ['/api*'],
         }),
         UsersModule,
