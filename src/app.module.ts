@@ -32,8 +32,8 @@ import {ImageModule} from "./image/image.module";
             runOnlyIfTableIsEmpty: true,
         }),
         ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '..', '..' ,'client'),
-            exclude: ['/api*'],
+            rootPath: join(__dirname, "..", "client"),
+            exclude: ["/api*"],
         }),
         UsersModule,
         AuthModule,
