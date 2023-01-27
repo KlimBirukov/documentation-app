@@ -19,7 +19,7 @@ import {MailSenderModule} from "./mail-sender/mail-sender.module";
     providers: [],
     imports: [
         ConfigModule.forRoot({
-            envFilePath: (`.${process.env.NODE_ENV}.env`)
+            envFilePath: (`.${process.env.NODE_ENV === undefined ? "production" : process.env.NODE_ENV}.env`)
         }),
         SequelizeModule.forRoot({
             dialect: "postgres",
