@@ -22,4 +22,12 @@ export class RolesService {
     async getRoleByValue(value: string) {
         return await this.roleRepository.findByPk(value);
     }
+
+    async getExistedRoles(){
+        try {
+            return this.roleRepository.findAll();
+        } catch (error) {
+            throw new HttpException("Couldn\'t get roles", HttpStatus.NOT_FOUND)
+        }
+    }
 }
