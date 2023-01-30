@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Post, UseGuards} from '@nestjs/common';
 
 import {RolesService} from "./roles.service";
 import {CreateRoleDto} from "./dto/createRole.dto";
@@ -20,7 +20,14 @@ export class RolesController {
     }
 
     @Get()
-    getExistedRoles(){
+    getExistedRoles() {
         return this.roleService.getExistedRoles();
     }
+
+    @Delete()
+    deleteRole(@Body() value: string) {
+        return this.roleService.deleteRole(value);
+    }
+
+
 }

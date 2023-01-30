@@ -13,10 +13,12 @@ export class SeedRole implements OnSeederInit {
         return [
             {
                 value: "ADMIN",
-                description: "You're GOD in the app"
+                description: "You're GOD in the app",
+                isDestroyable: false,
             }, {
                 value: "USER",
-                description: "You're nothing in the app"
+                description: "You're nothing in the app",
+                isDestroyable: false,
             }
         ];
     }
