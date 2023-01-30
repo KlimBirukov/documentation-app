@@ -68,4 +68,18 @@ export class UsersService {
         }
         throw new HttpException("User or role not found", HttpStatus.NOT_FOUND);
     }
+
+    async removeRoleFromUser(dto: AddRoleDto) {
+        const user = await this.getUserByEmail(dto.email);
+        const role = await  this.roleService.getRoleByValue(dto.value);
+        if(role && user) {
+            await user.$remove("roles", role.value);
+            return dto;
+        }
+        throw new HttpException("User or role not found", HttpStatus.NOT_FOUND);
+    }
+
+    async getAll() {
+        return await this.userRepository.findAll({include: [{all: true}]});
+    }
 }
