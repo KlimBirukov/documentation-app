@@ -162,7 +162,7 @@ export class DocsService {
             const whereQuery = idx.map(el => `id = '${el}'`).join(" OR ");
             const query = `SELECT ${whatSelect}
                            FROM "document"
-                           WHERE ${whereQuery}
+                           WHERE ( ${whereQuery} ) AND "deletedAt" IS NULL 
                            ORDER BY "createdAt" ASC;`;
 
             return await this.documentRepository.sequelize.query(query).then(data => data[0]);
