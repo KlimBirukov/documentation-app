@@ -31,3 +31,24 @@ $ npm run start:dev
 $ npm run build 
 ```
 
+## .env
+Create two env files in the root of the project: .production.env and .development.env for prod mod and dev.
+By default, at startup, it will be used .production.env. 
+The contents of both files are the same:
+
+* PORT - Port your application is running on.
+
+Database postgres
+* POSTGRES_HOST - Database host.
+* POSTGRES_USER - Database username.
+* POSTGRES_DB - Database name
+* POSTGRES_PASSWORD - Database password.
+* POSTGRES_PORT - Database host port. Default postgres port is 5432.
+
+Auth
+* PRIVATE_KEY - Secret data for access token.
+
+Mail Auth
+* MAIL_HOST - Mail sender removed host
+* MAIL_AUTH_USER - Name of you accaunt on removed host
+* MAIL_AUTH_PASS - Password from you removed host
